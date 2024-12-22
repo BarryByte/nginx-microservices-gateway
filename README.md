@@ -1,7 +1,7 @@
 # Nginx API Gateway Configuration Guide
 
 ## Overview
-This document contains all necessary steps, do's and don'ts, and learnings from setting up an API Gateway using Nginx. It includes details about configuration file management, service routing, and troubleshooting.
+This document contains all necessary steps, do's and don'ts, and learnings from setting up an API Gateway using Nginx. It includes details about configuration file management, service routing, caching, rate limiting, adding custom headers, and troubleshooting.
 
 ---
 
@@ -76,6 +76,9 @@ http {
 
 3. **Create or Modify Configuration File:**
    - Write a custom configuration file, e.g., `custom.conf`, and ensure it includes routing rules for your services.
+        - Rate Limiting: Limits the number of requests per second (5 requests per second per client).
+        - Custom Headers: Added a custom header X-Custom-Header to responses.
+        - Caching: Enabled caching for responses from backend services for 1 minute.
 
 4. **Specify the Custom Configuration File:**
    - Start Nginx using the custom configuration file:
@@ -109,13 +112,25 @@ http {
 ### 2. **Naming Conventions**
    - Always name your custom configuration files descriptively (e.g., `custom.conf` (used in this project)).
 
-### 3. **Successful Configuration Message**
+### 3. **Caching Setup**
+   - The `proxy_cache_path` directive specifies the location for the cache and its configuration. If you're using a custom directory for cache, ensure it exists and is accessible by Nginx.
+   - Nginx caching stores responses from the backend services and serves them for subsequent requests.
+   - **To cache you only need a empty directory, do not create any file inside the directory.**
+   - **Testing Cache**: After making requests to a service endpoint (e.g., `/property_service`), subsequent requests should be served from the cache (unless expired).
+
+### 4. **Rate Limiting**
+   - The `limit_req_zone` and `limit_req` directives are used to limit the rate of requests. In this setup, requests are limited to 5 requests per second per client.
+
+### 5. **Adding Custom Headers**
+   - The `proxy_set_header` directive is used to add custom headers, such as `X-Custom-Header`, to responses from your services.
+
+### 6. **Successful Configuration Message**
    - After running the custom configuration, a successful message like this should appear:
      ```
      nginx: configuration file D:/my-project/nginx/custom.conf test is successful
      ```
 
-### 4. **Error Log Analysis**
+### 7. **Error Log Analysis**
    - Common errors like "the rewritten URI has a zero length" can be resolved by ensuring your `rewrite` directive does not result in an empty path.
 
 ---
